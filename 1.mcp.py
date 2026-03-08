@@ -1,10 +1,8 @@
 import sys
 #from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
-import asyncio
-
 from mcp_lite import StdioServerParameters
-from mcp_lite.client.stdio import stdio_client
+
 
 def main():
 
