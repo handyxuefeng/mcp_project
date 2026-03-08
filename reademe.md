@@ -83,3 +83,22 @@ Starting MCP inspector...
 --directory：项目根目录
 run：uv 子命令
 weather-server：包名（来自 pyproject.toml 的 [project].name）
+
+
+
+#### 流程
+1. 打开主机，比如vscoe，cline
+2. 在主机内，通过@modelcontextprotocol/inspector  启动mcp客户端  @modelcontextprotocol/server-filesystem
+3. mcp客户端去连接 mcp服务 mcp-weather.py
+
+
+# mcp加载资源
+npx @modelcontextprotocol/inspector uv --directory /Users/hanxuefeng/project/mcp_project run resources_server.py
+
+
+
+
+
+# 使用ai插件cline,cherry-ai 插件连接mcp远程服务器注意点
+- 如果mcp是居于streamHttp创建的http服务，那要一直启动，要不然ai工具没法连接上
+- 如果mcp服务是居于stido创建的，表示是本地的服务，没有网络开销
