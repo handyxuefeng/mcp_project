@@ -55,6 +55,7 @@ def _env():
     }
 
 
+# 定义 stdio_client 上下文管理器函数，用于创建子进程并与之通信
 @contextmanager
 def stdio_client(server_params, errlog=sys.stderr):
     # 创建一个子进程来运行服务器,并重定向到 stdin 和 stdout
@@ -72,7 +73,11 @@ def stdio_client(server_params, errlog=sys.stderr):
         **(server_params.env or {}),  # 将用户提供的环境变量覆盖默认环境
     }
 
-    # subprocess 类似nodejs的child_process.spawn,它会创建一个新的进程来运行指定的命令,并且可以通过管道与该进程进行通信
+    """
+    https://static.docs-hub.com/index_1771679227617.html
+    subprocess 类似nodejs的child_process.spawn,
+    它会创建一个新的进程来运行指定的命令,并且可以通过管道与该进程进行通信
+    """
     process = subprocess.Popen(
         [cmd] + server_params.args,  # 子进程要执行的命令和参数 ,比如 mkdir test
         stdin=subprocess.PIPE,  # 重定向标准输入
@@ -84,8 +89,8 @@ def stdio_client(server_params, errlog=sys.stderr):
         encoding=server_params.encoding,  # 指定编码
         errors=server_params.encoding_error_handler,  # 指定编码错误处理方式
     )
-    print(f"process: {process}")
-    yield None, None
+    print("子进程打印了111")
+    yield process
 
 
 """
