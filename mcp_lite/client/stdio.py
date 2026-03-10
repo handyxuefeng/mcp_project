@@ -139,6 +139,7 @@ def stdio_client(server_params, errlog=sys.stderr):
 
     try:
         yield ReadStream(), WriteStream()  # 将读写流对象作为上下文管理器的结果返回给调用者
+
     finally:
         write_q.put(None)  # 向写入队列中放入 None 作为结束信号，告诉写入线程可以退出了
         rt.join(timeout=3)  # 等待读取线程结束
