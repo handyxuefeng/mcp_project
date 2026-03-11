@@ -79,43 +79,35 @@ def stdio_client(server_params, errlog=sys.stderr):
         **(server_params.env or {}),  # 将用户提供的环境变量覆盖默认环境
     }
 
-    """
-    https://static.docs-hub.com/index_1771679227617.html
-    subprocess 类似nodejs的child_process.spawn,
-    它会创建一个新的进程来运行指定的命令,并且可以通过管道与该进程进行通信
-    """
     sub_process = subprocess.Popen(
-        [cmd] + server_params.args,  # 子进程要执行的命令和参数 ,比如 mkdir test
-        stdin=subprocess.PIPE,  # 重定向标准输入
-        stdout=subprocess.PIPE,  # 重定向标准输出
-        stderr=errlog,  # 重定向标准错误
-        env=env,  # 环境变量
-        cwd=server_params.cwd,  # 工作目录
-        text=False,  # 以二进制模式处理输入输出
-        encoding=server_params.encoding,  # 指定编码
-        errors=server_params.encoding_error_handler,  # 指定编码错误处理方式
+        [cmd] + server_params.args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=errlog,
+        env=env,
+        cwd=server_params.cwd,
+        text=True,
+        encoding=server_params.encoding,
+        errors=server_params.encoding_error_handler,
     )
 
     # 定义从子进程stdout读取数据的函数
     def read_from_process():
         while True:
-            line = sub_process.stdout.readline()  # 从子进程的标准输出读取一行数据
-            if line == "":  # 如果读取到空字符串，说明子进程已经结束了
+            line = sub_process.stdout.readline()
+            if line == "":
                 break
-
-        line = line.decode(server_params.encoding).strip()  # 将二进制数据解码为字符串
-        if line:
-            read_q.put(line)  # 将读取到的数据放入队列中，供调用者使用
+            line = line.strip()
+            if line:
+                read_q.put(line)
 
     # 定义主进程向子进程stdin写入数据的函数
     def write_to_process():
+        while (m := write_q.get()) is not None:
 
-        while (
-            m := write_q.get()
-        ) is not None:  # 从写入队列中获取数据，直到获取到 None 作为结束信号
-            data = m.encode(server_params.encoding)  # 将字符串数据编码为二进制
-            sub_process.stdin.write(data)  # 向子进程的标准输入写入数据
-            sub_process.stdin.flush()  # 刷新输入流，确保数据被发送到子进程
+            # 向子进程stdin写入数据
+            sub_process.stdin.write(m)
+            sub_process.stdin.flush()
 
     # 创建两个线程分别处理读取和写入操作
     rt = threading.Thread(target=read_from_process, daemon=True)
@@ -133,6 +125,8 @@ def stdio_client(server_params, errlog=sys.stderr):
             return read_q.get()
 
     class WriteStream:
+
+        # 定义 send 方法，用于向子进程发送数据
         def send(self, data):
             # 将数据放入写入队列中，等待写入线程处理
             write_q.put(data)
