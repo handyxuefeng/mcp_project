@@ -102,3 +102,23 @@ npx @modelcontextprotocol/inspector uv --directory /Users/hanxuefeng/project/mcp
 # 使用ai插件cline,cherry-ai 插件连接mcp远程服务器注意点
 - 如果mcp是居于streamHttp创建的http服务，那要一直启动，要不然ai工具没法连接上
 - 如果mcp服务是居于stido创建的，表示是本地的服务，没有网络开销
+
+
+
+主机通过客户端加载 启动客户端内部自己起服务 然后客服端调工具 顺序是这样吗 老师
+
+1. 先打开主机，比如打开vscode 、cherry study 、cline
+2. 在主机内启动MCP客户端
+3. MCP客户端会去连接自己的MCP服务器
+   - 如果是stdio传输的，需要让MCP客户端这个主进程内部通过子进程启动自己的MCP服务器，再用自己这个客户端连接自己启动的MCP服务器
+   - 如果是http传输的，不会自己通过子进程启动服务器了，而是直接连接配置的url服务器
+
+
+npx @modelcontextprotocol/inspector uv --directory D:/forever/rag_code/12.mcp run completions_server.py
+
+
+
+npx @modelcontextprotocol/inspector uv --directory /Users/hanxuefeng/project/mcp_project run get-china-weather-server.py
+
+
+npx @modelcontextprotocol/inspector uv --directory /Users/hanxuefeng/project/mcp_project run tool_server.py client

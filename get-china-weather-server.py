@@ -3,11 +3,13 @@ from typing import Any
 
 # 导入 httpx，用于异步 HTTP 请求
 import httpx
+
 # 从 MCP SDK 导入 FastMCP，用于快速创建 MCP 服务器
 from mcp.server.fastmcp import FastMCP
 
-# 创建名为 "weather" 的 FastMCP 服务器实例
-mcp = FastMCP(name="获取中国城市天气预报服务", port=8001)
+# 创建名为 "weather" 的 FastMCP 服务器实例（stdio 模式不需要 port）
+mcp = FastMCP(name="获取中国城市天气预报服务")
+
 
 # 定义异步函数：向中国天气预报 API 发起请求，返回 JSON 或 None
 @mcp.tool()
@@ -28,7 +30,8 @@ async def get_china_weather(city: str) -> dict[str, Any] | None:
         # 发生任何异常时返回 None，不中断程序
         except Exception:
             return None
-        
-# 判断当前文件是否作为主程序运行
+
+
+# 判断当前文件是否作为主程序运行（Inspector 用 STDIO 连接时需用 stdio）
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    mcp.run(transport="stdio")
